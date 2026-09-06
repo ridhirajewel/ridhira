@@ -2,12 +2,18 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import { X, Minus } from "lucide-react";
+import { X, Minus, Plus, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatMoney } from "@/lib/format";
 
 export default function CartDrawer() {
-  const { cart, isCartOpen, closeCartDrawer, removeFromCart } = useCart();
+  const {
+    cart,
+    isCartOpen,
+    closeCartDrawer,
+    removeFromCart,
+    updateQuantity,
+  } = useCart();
 
   useEffect(() => {
     document.body.style.overflow = isCartOpen ? "hidden" : "";
@@ -20,12 +26,15 @@ export default function CartDrawer() {
     <div
       className={`fixed inset-0 z-[70] ${isCartOpen ? "" : "pointer-events-none"}`}
       aria-hidden={!isCartOpen}
+      role="dialog"
+      aria-label="Shopping cart"
     >
       <div
         onClick={closeCartDrawer}
         className={`absolute inset-0 bg-ink/40 transition-opacity duration-300 ${
           isCartOpen ? "opacity-100" : "opacity-0"
         }`}
+        aria-hidden="true"
       />
       <div
         className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-ivory shadow-2xl transition-transform duration-300 ease-out ${
@@ -72,20 +81,48 @@ export default function CartDrawer() {
                   <div className="flex flex-1 flex-col justify-between">
                     <div>
                       <p className="text-[15px] text-ink">{item.name}</p>
-                      <p className="mt-0.5 text-sm text-bark/60">
-                        Qty {item.quantity}
-                      </p>
+                      {item.attributes && item.attributes.length > 0 && (
+                        <p className="mt-0.5 text-xs text-bark/50">
+                          {item.attributes.map((a) => a.value).join(", ")}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-ink">
-                        {formatMoney(item.subtotal)}
-                      </span>
-                      <button
-                        onClick={() => removeFromCart(item.key)}
-                        className="flex items-center gap-1 text-xs uppercase tracking-wide text-bark/60 transition hover:text-oxblood"
-                      >
-                        <Minus size={12} /> Remove
-                      </button>
+                      <div className="flex items-center border border-hairline rounded-sm overflow-hidden">
+                        <button
+                          onClick={() => updateQuantity(item.key, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                          className="p-2 text-ink/70 transition hover:bg-ink/5 disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus size={14} strokeWidth={2} />
+                        </button>
+                        <span className="w-10 text-center text-sm font-medium text-ink">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.key, item.quantity + 1)}
+                          className="p-2 text-ink/70 transition hover:bg-ink/5"
+                          aria-label="Increase quantity"
+                        >
+                          <Plus size={14} strokeWidth={2} />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="font-serif text-sm text-ink">
+                          {formatMoney(item.subtotal)}
+                        </span>
+                        <button
+                          onClick={() => removeFromCart(item.key)}
+                          className="flex items-center gap-1 text-xs uppercase tracking-wide text-bark/60 transition hover:text-oxblood"
+                          aria-label={`Remove ${item.name}`}
+                        >
+                          <span className="hidden sm:inline">Remove</span>
+                          <span className="sm:hidden" aria-hidden="true">
+                            <X size={14} strokeWidth={2} />
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </li>
@@ -102,7 +139,13 @@ export default function CartDrawer() {
                 {formatMoney(cart.subtotal)}
               </span>
             </div>
-            <button className="w-full bg-ink py-3.5 text-sm uppercase tracking-[0.14em] text-ivory transition hover:bg-gold">
+            <button
+              onClick={() => {
+                closeCartDrawer();
+                window.location.href = "/checkout";
+              }}
+              className="w-full bg-ink py-3.5 text-sm uppercase tracking-[0.14em] text-ivory transition hover:bg-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+            >
               Proceed to Checkout
             </button>
             <p className="mt-3 text-center text-xs text-bark/50">

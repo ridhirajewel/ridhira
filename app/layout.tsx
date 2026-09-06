@@ -3,6 +3,7 @@ import { Fraunces, Work_Sans } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import QuickView from "@/components/QuickView";
+import Toasts from "@/components/Toasts";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -36,6 +37,7 @@ export default function RootLayout({
           {children}
           <CartDrawer />
           <QuickView />
+          <Toasts />
         </CartProvider>
       </body>
     </html>

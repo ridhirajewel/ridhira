@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
@@ -12,6 +13,7 @@ type ButtonStatus = "idle" | "loading" | "success" | "error";
 
 export default function ProductActions({ databaseId }: ProductActionsProps) {
   const { addToCart } = useCart();
+  const router = useRouter();
   const [cartStatus, setCartStatus] = useState<ButtonStatus>("idle");
   const [buyStatus, setBuyStatus] = useState<ButtonStatus>("idle");
 
@@ -47,9 +49,15 @@ export default function ProductActions({ databaseId }: ProductActionsProps) {
       if (typeof addToCart !== "function") {
         throw new Error("addToCart is not available from CartContext");
       }
+
       await addToCart(databaseId);
-      // Redirect straight to checkout after successfully adding to cart.
-      window.location.href = "/checkout";
+
+      // A hard navigation (window.location.href) reloads the document before
+      // React has a chance to flush state, wiping whatever addToCart just wrote
+      // to localStorage. A tiny delay plus a client-side router.push avoids the
+      // reload entirely, so the cart write survives the navigation.
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      router.push("/checkout");
     } catch (err) {
       console.error("Buy now failed:", err);
       setBuyStatus("error");

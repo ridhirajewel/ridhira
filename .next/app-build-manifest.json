@@ -16,10 +16,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/products/[slug]/page.js"
     ],
-    "/collections/[slug]/page": [
+    "/checkout/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/collections/[slug]/page.js"
+      "static/chunks/app/checkout/page.js"
     ],
     "/_not-found/page": [
       "static/chunks/webpack.js",
