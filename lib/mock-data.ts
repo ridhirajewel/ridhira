@@ -8,88 +8,102 @@ const INR = (amount: string) => ({
 
 export const categories: Category[] = [
   {
-    id: "cat_rings",
-    databaseId: 101,
-    name: "Rings",
-    slug: "rings",
-    description: "Solitaires, bands, and stacking sets cut for everyday wear.",
+    id: "cat_21",
+    databaseId: 21,
+    name: "Demi Fine",
+    slug: "demi-fine",
+    description: "",
     image: {
-      id: "img_cat_rings",
+      id: "img_cat_21",
       sourceUrl:
         "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800&auto=format&fit=crop",
-      altText: "Gold ring with a single set stone",
+      altText: "Demi Fine",
     },
-    count: 42,
+    count: 30,
   },
   {
-    id: "cat_necklaces",
-    databaseId: 102,
-    name: "Necklaces",
-    slug: "necklaces",
-    description: "Chains and pendants in 18kt gold and oxidised silver.",
+    id: "cat_18",
+    databaseId: 18,
+    name: "Earring",
+    slug: "earring",
+    description: "",
     image: {
-      id: "img_cat_necklaces",
-      sourceUrl:
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800&auto=format&fit=crop",
-      altText: "Fine gold necklace laid flat",
-    },
-    count: 37,
-  },
-  {
-    id: "cat_earrings",
-    databaseId: 103,
-    name: "Earrings",
-    slug: "earrings",
-    description: "Studs, hoops, and drops for day-to-night wear.",
-    image: {
-      id: "img_cat_earrings",
+      id: "img_cat_18",
       sourceUrl:
         "https://images.unsplash.com/photo-1535632787350-4e68ef0ac584?q=80&w=800&auto=format&fit=crop",
-      altText: "Pair of gold drop earrings",
+      altText: "Earring",
     },
-    count: 29,
+    count: 13,
   },
   {
-    id: "cat_bracelets",
-    databaseId: 104,
-    name: "Bracelets",
-    slug: "bracelets",
-    description: "Cuffs, tennis lines, and beaded bracelets.",
+    id: "cat_44",
+    databaseId: 44,
+    name: "Ethnic",
+    slug: "ethnic",
+    description: "",
     image: {
-      id: "img_cat_bracelets",
-      sourceUrl:
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800&auto=format&fit=crop",
-      altText: "Gold bracelet on a wrist",
-    },
-    count: 18,
-  },
-  {
-    id: "cat_bridal",
-    databaseId: 105,
-    name: "Bridal",
-    slug: "bridal",
-    description: "Statement sets for the wedding table.",
-    image: {
-      id: "img_cat_bridal",
+      id: "img_cat_44",
       sourceUrl:
         "https://images.unsplash.com/photo-1584302179602-e4c3d3fd629d?q=80&w=800&auto=format&fit=crop",
-      altText: "Bridal jewellery set with stones",
+      altText: "Ethnic",
     },
-    count: 14,
+    count: 1,
   },
   {
-    id: "cat_mens",
-    databaseId: 106,
-    name: "Men's Edit",
-    slug: "mens-edit",
-    description: "Signet rings, chains, and cufflinks.",
+    id: "cat_20",
+    databaseId: 20,
+    name: "New Launch",
+    slug: "new-launch",
+    description: "",
     image: {
-      id: "img_cat_mens",
+      id: "img_cat_20",
       sourceUrl:
-        "https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?q=80&w=800&auto=format&fit=crop",
-      altText: "Men's signet ring in gold",
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800&auto=format&fit=crop",
+      altText: "New Launch",
     },
-    count: 11,
+    count: 9,
+  },
+  {
+    id: "cat_31",
+    databaseId: 31,
+    name: "Our-Collection",
+    slug: "our-collection",
+    description: "",
+    image: {
+      id: "img_cat_31",
+      sourceUrl:
+        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800&auto=format&fit=crop",
+      altText: "Our-Collection",
+    },
+    count: 5,
+  },
+  {
+    id: "cat_16",
+    databaseId: 16,
+    name: "Pendant",
+    slug: "pendant",
+    description: "",
+    image: {
+      id: "img_cat_16",
+      sourceUrl:
+        "https://images.unsplash.com/photo-1608042314453-ae338d80c427?q=80&w=800&auto=format&fit=crop",
+      altText: "Pendant",
+    },
+    count: 34,
+  },
+  {
+    id: "cat_19",
+    databaseId: 19,
+    name: "Western",
+    slug: "western",
+    description: "",
+    image: {
+      id: "img_cat_19",
+      sourceUrl:
+        "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=800&auto=format&fit=crop",
+      altText: "Western",
+    },
+    count: 35,
   },
 ];
 
@@ -123,7 +137,7 @@ export const products: Product[] = [
         altText: "Aria solitaire ring, worn on hand",
       },
     ],
-    categories: [{ id: "cat_rings", name: "Rings", slug: "rings" }],
+    categories: [{ id: "cat_21", name: "Demi Fine", slug: "demi-fine" }],
     attributes: [
       {
         id: "attr_size",
@@ -163,7 +177,7 @@ export const products: Product[] = [
         altText: "Veyra chain necklace worn",
       },
     ],
-    categories: [{ id: "cat_necklaces", name: "Necklaces", slug: "necklaces" }],
+    categories: [{ id: "cat_16", name: "Pendant", slug: "pendant" }],
     attributes: [],
   },
   {
@@ -195,7 +209,7 @@ export const products: Product[] = [
         altText: "Ophelia drop earrings worn",
       },
     ],
-    categories: [{ id: "cat_earrings", name: "Earrings", slug: "earrings" }],
+    categories: [{ id: "cat_18", name: "Earring", slug: "earring" }],
     attributes: [],
   },
   {
@@ -226,7 +240,7 @@ export const products: Product[] = [
         altText: "Ines tennis bracelet detail",
       },
     ],
-    categories: [{ id: "cat_bracelets", name: "Bracelets", slug: "bracelets" }],
+    categories: [{ id: "cat_19", name: "Western", slug: "western" }],
     attributes: [],
   },
   {
@@ -258,10 +272,7 @@ export const products: Product[] = [
         altText: "Solene signet ring worn",
       },
     ],
-    categories: [
-      { id: "cat_rings", name: "Rings", slug: "rings" },
-      { id: "cat_mens", name: "Men's Edit", slug: "mens-edit" },
-    ],
+    categories: [{ id: "cat_20", name: "New Launch", slug: "new-launch" }],
     attributes: [
       {
         id: "attr_size2",
@@ -301,7 +312,7 @@ export const products: Product[] = [
         altText: "Marguerite pendant detail",
       },
     ],
-    categories: [{ id: "cat_necklaces", name: "Necklaces", slug: "necklaces" }],
+    categories: [{ id: "cat_16", name: "Pendant", slug: "pendant" }],
     attributes: [],
   },
   {
@@ -332,7 +343,7 @@ export const products: Product[] = [
         altText: "Celestine hoop earrings worn",
       },
     ],
-    categories: [{ id: "cat_earrings", name: "Earrings", slug: "earrings" }],
+    categories: [{ id: "cat_18", name: "Earring", slug: "earring" }],
     attributes: [],
   },
   {
@@ -364,7 +375,7 @@ export const products: Product[] = [
         altText: "Bellamy cuff bracelet worn",
       },
     ],
-    categories: [{ id: "cat_bracelets", name: "Bracelets", slug: "bracelets" }],
+    categories: [{ id: "cat_19", name: "Western", slug: "western" }],
     attributes: [],
   },
 ];

@@ -7,6 +7,7 @@ import CraftsmanshipSpotlight from "@/components/CraftsmanshipSpotlight";
 import GlowDiaryReels from "@/components/ReelCarousel"
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
+import FAQ from "@/components/FAQSection";
 
 export default function HomePage() {
   return (
@@ -19,6 +20,7 @@ export default function HomePage() {
          <CraftsmanshipSpotlight />
         <BestSellers />
         <GlowDiaryReels />
+        <FAQ />
         <Testimonials />
       </main>
       <Footer />
