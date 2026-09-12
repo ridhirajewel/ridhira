@@ -13,34 +13,29 @@ interface FAQItem {
 // and interaction below don't need to change.
 const faqs: FAQItem[] = [
   {
-    question: "Is every piece certified?",
+    question: "Can I wear anti-tarnish jewellery every day?", //[cite: 1]
     answer:
-      "Yes. Each piece ships with its own certificate of authenticity, detailing metal purity and, where applicable, independent laboratory grading for every diamond or gemstone used.",
+      "Yes, you can wear anti-tarnish jewellery every day. It is designed for daily use, making it perfect for styling your favorite pinterest jewellery, a cute heart pendant, or simple minimal jewellery looks. It is durable, water-resistant, and keeps its shine for a long time.", //[cite: 1]
   },
   {
-    question: "Can a piece be resized after purchase?",
+    question: "Does anti-tarnish jewellery turn skin green?", //[cite: 1]
     answer:
-      "Most rings can be resized within two sizes up or down at no charge within 30 days of delivery. Reach out with your order number and we'll arrange collection and return shipping.",
+      "No, good-quality anti-tarnish jewellery does not turn your skin green. It is made with skin-friendly materials that prevent reactions, so your necklace and rings stay safe to wear all day. Green stains usually happen with low-quality metals, but anti-tarnish pieces are designed to avoid this issue.", //[cite: 1]
   },
   {
-    question: "Do you offer custom or bespoke orders?",
+    question: "Is minimal jewellery safe for sensitive skin?", //[cite: 1]
     answer:
-      "We do. Bespoke commissions typically take four to six weeks from initial consultation to completion, depending on the design's complexity and stone sourcing.",
+      "Yes, minimal jewellery is generally safe for sensitive skin, especially when made from hypoallergenic and nickel-free materials. Its lightweight and simple design reduces irritation, making it comfortable for daily wear. When choosing pieces like best western jewelry or trendy pinterest jewellery necklaces, always opt for high-quality, skin-friendly materials to ensure maximum comfort and safety.", //[cite: 1]
   },
   {
-    question: "What is your exchange and return policy?",
+    question: "What is the best way to clean western jewellery?", //[cite: 1]
     answer:
-      "Unworn pieces in their original packaging can be returned within 14 days of delivery for a full refund. Bespoke and engraved pieces are made to order and are final sale.",
+      "The best way to clean jewellery is simple and gentle: Wipe with a soft cloth after use, wash occasionally with mild soap and lukewarm water, dry completely before storing, and avoid harsh chemicals or abrasive materials, as they can damage the coating.", //[cite: 1]
   },
   {
-    question: "How should I care for my jewellery?",
+    question: "Is Pinterest Style jewellery good for gifting?", //[cite: 1]
     answer:
-      "Store each piece separately to avoid scratching, remove it before swimming or applying fragrance, and have the setting checked by us once a year if it's worn daily.",
-  },
-  {
-    question: "Where do you ship, and how long does it take?",
-    answer:
-      "We ship across India within 3–5 business days via insured courier, and internationally within 7–10 business days. Every shipment is tracked and signature-required.",
+      "Yes, anti-tarnish jewellery is a great gifting option. It offers long-lasting shine, trendy designs, and is suitable for daily wear. Its durability and skin-friendly nature make it a thoughtful and practical gift for any occasion.", //[cite: 1]
   },
 ];
 
@@ -87,20 +82,18 @@ export default function FAQSection() {
                       className="flex w-full items-center justify-between gap-6 py-6 text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-gold"
                     >
                       <span
-                        className={`font-serif text-[17px] transition-colors lg:text-[19px] ${
-                          isOpen ? "text-gold" : "text-ink"
-                        }`}
+                        className={`font-serif text-[17px] transition-colors lg:text-[19px] ${isOpen ? "text-gold" : "text-ink"
+                          }`}
                       >
                         {faq.question}
                       </span>
                       <motion.span
                         animate={{ rotate: isOpen ? 45 : 0 }}
                         transition={{ duration: 0.25, ease: "easeOut" }}
-                        className={`flex h-8 w-8 flex-none items-center justify-center rounded-full border transition-colors ${
-                          isOpen
+                        className={`flex h-8 w-8 flex-none items-center justify-center rounded-full border transition-colors ${isOpen
                             ? "border-gold text-gold"
                             : "border-hairline text-ink"
-                        }`}
+                          }`}
                       >
                         <Plus size={15} strokeWidth={1.5} />
                       </motion.span>

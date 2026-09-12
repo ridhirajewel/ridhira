@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Menu, Search, Heart, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import MobileMenu from "./MobileMenu";
+import Image from "next/image";
+import logo from "../app/assests/ridhira_transparent.svg";
 
 const navLinks = [
   { label: "New Arrivals", href: "/new-arrivals" },
@@ -30,9 +32,8 @@ export default function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 bg-ivory/95 backdrop-blur transition-shadow duration-300 ${
-          isScrolled ? "shadow-[0_1px_0_0_theme(colors.hairline)]" : ""
-        }`}
+        className={`sticky top-0 z-50 bg-ivory/95 backdrop-blur transition-shadow duration-300 ${isScrolled ? "shadow-[0_1px_0_0_theme(colors.hairline)]" : ""
+          }`}
       >
         <div className="mx-auto flex h-[76px] max-w-[1600px] items-center justify-between px-5 lg:px-10">
           <button
@@ -47,7 +48,7 @@ export default function Header() {
             href="/"
             className="font-serif text-[26px] tracking-tight text-ink lg:text-[28px]"
           >
-            Ridhira
+            <Image src={logo} alt="Ridhira" width={100} height={50} />
           </a>
 
           <nav className="hidden lg:flex lg:items-center lg:gap-8">
