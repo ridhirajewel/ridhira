@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 
+interface MoneyAmount {
+  amount: string;
+  currencyCode: string;
+  currencySymbol: string;
+}
+
 // Perfectly matched to your ProductCard's required 'Product' type
 interface MappedProduct {
   id: string;
@@ -16,9 +22,9 @@ interface MappedProduct {
   isNew: boolean;
   images: { sourceUrl: string; altText: string }[];
   categories: { name: string }[];
-  price: string;
-  regularPrice: string;
-  salePrice: string;
+  price: MoneyAmount;
+  regularPrice: MoneyAmount;
+  salePrice?: MoneyAmount;
   averageRating: number;
   reviewCount: number;
 }
@@ -51,7 +57,6 @@ interface WPGraphQLProduct {
   salePrice?: string;
 }
 
-// Expanded query to fetch categories, alt text, and reviews
 const LATEST_PRODUCTS_QUERY = `
   query GetLatestProducts {
     products(first: 8, where: { orderby: { field: DATE, order: DESC } }) {
@@ -98,6 +103,19 @@ const LATEST_PRODUCTS_QUERY = `
 
 const WP_GRAPHQL_ENDPOINT = "https://wp.ridhira.in/graphql";
 
+// Helper to strip HTML and commas from WPGraphQL price strings
+const extractAmount = (priceStr?: string) => {
+  if (!priceStr) return "0";
+  const match = priceStr.replace(/,/g, '').match(/[\d.]+/);
+  return match ? match[0] : "0";
+};
+
+const createMoneyObj = (amount: string): MoneyAmount => ({
+  amount: amount || "0",
+  currencyCode: "INR",
+  currencySymbol: "₹",
+});
+
 export default function BestSellers() {
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -140,13 +158,11 @@ export default function BestSellers() {
         const nodes: WPGraphQLProduct[] = json?.data?.products?.nodes ?? [];
 
         const mapped: MappedProduct[] = nodes.map((product) => {
-          // Format primary image as an object
           const primaryImg = {
             sourceUrl: product.image?.sourceUrl ?? "/placeholder-product.jpg",
             altText: product.image?.altText ?? product.name,
           };
           
-          // Format secondary image for the hover effect
           const secondaryImg = {
             sourceUrl: product.galleryImages?.nodes?.[0]?.sourceUrl ?? primaryImg.sourceUrl,
             altText: product.galleryImages?.nodes?.[0]?.altText ?? primaryImg.altText,
@@ -160,22 +176,16 @@ export default function BestSellers() {
             type: product.type,
             onSale: product.onSale,
             stockStatus: product.stockStatus ?? "IN_STOCK",
-            
-            // Pass images as the array of objects ProductCard expects
             images: [primaryImg, secondaryImg],
-            
-            // Pass categories, defaulting to an empty array if none exist
             categories: product.productCategories?.nodes ?? [],
             
-            price: product.price ?? "",
-            regularPrice: product.regularPrice ?? product.price ?? "",
-            salePrice: product.salePrice ?? "",
+            // Re-mapped as strict MoneyAmount objects
+            price: createMoneyObj(extractAmount(product.price)),
+            regularPrice: createMoneyObj(extractAmount(product.regularPrice ?? product.price)),
+            salePrice: product.salePrice ? createMoneyObj(extractAmount(product.salePrice)) : undefined,
             
-            // Provide rating fallbacks
             averageRating: product.averageRating ?? 0,
             reviewCount: product.reviewCount ?? 0,
-            
-            // Set to true if you want the "NEW" badge to appear on all latest arrivals
             isNew: true, 
           };
         });
