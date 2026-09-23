@@ -31,7 +31,7 @@ interface RazorpayErrorResponse {
 }
 
 export async function POST(request: NextRequest) {
-  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const keyId = process.env.NEXT_RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   if (

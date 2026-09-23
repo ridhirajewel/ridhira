@@ -1,9 +1,5 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js",
-  "/[slug]/page": "app/[slug]/page.js",
-  "/collections/[slug]/page": "app/collections/[slug]/page.js",
   "/products/[slug]/page": "app/products/[slug]/page.js",
   "/checkout/page": "app/checkout/page.js",
-  "/api/razorpay/order/route": "app/api/razorpay/order/route.js"
+  "/page": "app/page.js"
 }
