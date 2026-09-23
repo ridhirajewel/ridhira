@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { X, Minus, Plus, Loader2 } from "lucide-react";
+import { X, Minus, Plus } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatMoney } from "@/lib/format";
 
 export default function CartDrawer() {
+  const router = useRouter();
   const {
     cart,
     isCartOpen,
@@ -150,7 +152,7 @@ export default function CartDrawer() {
             <button
               onClick={() => {
                 closeCartDrawer();
-                window.location.href = "/checkout";
+                router.push("/checkout");
               }}
               className="w-full bg-ink py-3.5 text-sm uppercase tracking-[0.14em] text-ivory transition hover:bg-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
             >

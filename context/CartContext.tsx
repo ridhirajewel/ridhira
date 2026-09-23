@@ -31,6 +31,7 @@ interface Toast {
 
 interface CartContextValue {
   cart: CartSession;
+  isHydrated: boolean;
   isCartOpen: boolean;
   openCartDrawer: () => void;
   closeCartDrawer: () => void;
@@ -391,6 +392,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value: CartContextValue = {
     cart,
+    isHydrated: hydrated,
     isCartOpen,
     openCartDrawer: () => setCartOpen(true),
     closeCartDrawer: () => setCartOpen(false),

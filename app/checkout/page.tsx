@@ -109,7 +109,7 @@ type FieldConfig = typeof fieldConfig[number];
 type BillingFieldName = FieldConfig["name"];
 
 export default function CheckoutPage() {
-  const { cart, closeCartDrawer } = useCart();
+  const { cart, isHydrated, closeCartDrawer } = useCart();
   const router = useRouter();
   const [formData, setFormData] = useState<CheckoutFormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -117,11 +117,14 @@ export default function CheckoutPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Only redirect after the cart has been hydrated from localStorage.
+  // Without this guard, the effect fires on first render when cart.items is
+  // still [] and sends the user back to / even with a full cart.
   useEffect(() => {
-    if (cart.items.length === 0) {
+    if (isHydrated && cart.items.length === 0) {
       router.push("/");
     }
-  }, [cart.items.length, router]);
+  }, [isHydrated, cart.items.length, router]);
 
   useEffect(() => {
     closeCartDrawer();
@@ -382,6 +385,19 @@ export default function CheckoutPage() {
       </div>
     );
   };
+
+  // Show a loading state while the cart is being hydrated from localStorage.
+  // This prevents the empty-cart message flashing before state is ready.
+  if (!isHydrated) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center bg-ivory">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink border-t-transparent" />
+          <p className="text-sm text-bark/60">Loading your cart…</p>
+        </div>
+      </div>
+    );
+  }
 
   if (cart.items.length === 0) {
     return (
