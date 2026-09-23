@@ -1,7 +1,13 @@
 import Image from "next/image";
-import { categories } from "@/lib/mock-data";
+import { getCategories, type Category } from "@/lib/graphql";
 
-export default function FeaturedCollections() {
+interface FeaturedCollectionsProps {
+  categories?: Category[];
+}
+
+export default async function FeaturedCollections({ categories: propCategories }: FeaturedCollectionsProps) {
+  const categories = propCategories ?? await getCategories();
+
   return (
     <section className="mx-auto max-w-[1600px] py-20 pl-5 lg:py-28 lg:pl-10">
       <div className="mb-12 pr-5 flex flex-col items-center text-center lg:pr-10">
@@ -13,18 +19,11 @@ export default function FeaturedCollections() {
         </h2>
       </div>
 
-      {/* 
-        Native CSS Slider:
-        - snap-x & snap-mandatory: Creates the smooth snapping effect
-        - overflow-x-auto: Enables horizontal scrolling
-        - [&::-webkit-scrollbar]:hidden etc: Hides the scrollbar across all browsers 
-      */}
       <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-8 pr-5 sm:gap-6 lg:gap-8 lg:pr-10 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {categories.map((category) => (
           <a
             key={category.id}
             href={`/collections/${category.slug}`}
-            // shrink-0 prevents items from squishing, w-[...] defines fixed widths per breakpoint
             className="group flex flex-col items-center gap-4 text-center shrink-0 snap-start w-[130px] sm:w-[150px] lg:w-[180px]"
           >
             <div className="relative aspect-square w-full overflow-hidden rounded-full bg-white ring-1 ring-hairline">

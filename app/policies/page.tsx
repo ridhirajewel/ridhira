@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 };
 
 const NAV_ITEMS = [
-  { href: "#returns", label: "Return & Exchange" },
-  { href: "#shipping", label: "Shipping Policy" },
-  { href: "#terms", label: "Terms & Conditions" },
+  { href: "/policies/returns", label: "Return & Exchange" },
+  { href: "/policies/shipping", label: "Shipping Policy" },
+  { href: "/policies/terms", label: "Terms & Conditions" },
 ];
 
 export default function PoliciesPage() {
@@ -221,7 +221,7 @@ export default function PoliciesPage() {
                 <p>
                   Please note that no returns or exchanges will be accepted
                   on sale items. For complete details, kindly refer to our{" "}
-                  <a href="#returns">Return and Exchange Policy</a>.
+                  <a href="/policies/returns">Return and Exchange Policy</a>.
                 </p>
                 <p>
                   If you have any questions regarding ongoing sales or

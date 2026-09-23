@@ -16,6 +16,7 @@ const config: Config = {
         "gold-light": "#C9A961",
         bottle: "#2F3B33",
         oxblood: "#8B3A3A",
+        emerald: "#2E7D52",
         hairline: "#E4DCCB",
       },
       fontFamily: {

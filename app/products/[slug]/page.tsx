@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import ProductGallery from "./ProductGallery";
 import ProductActions from "./ProductActions";
 
@@ -18,6 +17,10 @@ interface WPProduct {
   description: string;
   price: string | null;
   regularPrice: string | null;
+  stockStatus: string | null;
+  productCategories: {
+    nodes: { name: string; slug: string }[];
+  } | null;
   image: {
     sourceUrl: string;
     altText?: string;
@@ -33,9 +36,13 @@ const SINGLE_PRODUCT_QUERY = `
       databaseId
       name
       slug
+      productCategories {
+        nodes { name slug }
+      }
       ... on SimpleProduct {
         price
         regularPrice
+        stockStatus
         description
         image {
           sourceUrl
@@ -51,6 +58,7 @@ const SINGLE_PRODUCT_QUERY = `
       ... on VariableProduct {
         price
         regularPrice
+        stockStatus
         description
         image {
           sourceUrl
@@ -102,29 +110,44 @@ export default async function ProductPage({
     notFound();
   }
 
-  const mainImage = product.image?.sourceUrl ?? "/placeholder-product.jpg";
-  const mainImageAlt = product.image?.altText ?? product.name;
-  const galleryImages = product.galleryImages?.nodes ?? [];
+  // TypeScript narrowing — notFound() throws, so product is non-null here
+  const p = product!;
+
+  const mainImage = p.image?.sourceUrl ?? "/placeholder-product.jpg";
+  const mainImageAlt = p.image?.altText ?? p.name;
+  const galleryImages = p.galleryImages?.nodes ?? [];
+  const category = p.productCategories?.nodes?.[0];
+  const isOutOfStock = p.stockStatus === "OUT_OF_STOCK";
 
   const hasDiscount =
-    product.regularPrice &&
-    product.price &&
-    product.regularPrice !== product.price;
+    p.regularPrice &&
+    p.price &&
+    p.regularPrice !== p.price;
 
   return (
     <section className="bg-ivory py-10 lg:py-16">
       <div className="mx-auto max-w-[1400px] px-5 lg:px-10">
-        {/* Back to shop */}
-        <Link
-          href="/"
-          className="mb-8 inline-flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.15em] text-ink/70 transition hover:text-gold"
-        >
-          <ArrowLeft size={15} strokeWidth={1.5} />
-          Back to Shop
-        </Link>
+
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-ink/50">
+          <Link href="/" className="hover:text-gold transition">Home</Link>
+          <span aria-hidden="true">/</span>
+          {category ? (
+            <>
+              <Link
+                href={`/collections/${category.slug}`}
+                className="hover:text-gold transition"
+              >
+                {category.name}
+              </Link>
+              <span aria-hidden="true">/</span>
+            </>
+          ) : null}
+          <span className="text-ink/80">{p.name}</span>
+        </nav>
 
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
-          {/* Left: image gallery — 7 of 12 columns, padded so images don't stretch */}
+          {/* Left: image gallery — 7 of 12 columns */}
           <div className="lg:col-span-7 lg:pr-6">
             <ProductGallery
               mainImage={mainImage}
@@ -137,26 +160,35 @@ export default async function ProductPage({
           <div className="lg:col-span-5">
             <div className="lg:sticky lg:top-24">
               <h1 className="font-serif text-[30px] leading-tight text-ink lg:text-[38px]">
-                {product.name}
+                {p.name}
               </h1>
 
               <div className="mt-4 flex items-baseline gap-3">
                 <span
                   className="text-[20px] text-ink"
-                  dangerouslySetInnerHTML={{ __html: product.price ?? "" }}
+                  dangerouslySetInnerHTML={{ __html: p.price ?? "" }}
                 />
                 {hasDiscount && (
                   <span
                     className="text-[15px] text-ink/40 line-through"
                     dangerouslySetInnerHTML={{
-                      __html: product.regularPrice ?? "",
+                      __html: p.regularPrice ?? "",
                     }}
                   />
                 )}
               </div>
 
+              {isOutOfStock && (
+                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-oxblood/30 bg-oxblood/10 px-3 py-1 text-[11px] uppercase tracking-[0.1em] text-oxblood">
+                  Out of Stock
+                </p>
+              )}
+
               <div className="mt-8 border-t border-hairline pt-8">
-                <ProductActions databaseId={product.databaseId} />
+                <ProductActions
+                  databaseId={p.databaseId}
+                  stockStatus={p.stockStatus ?? "IN_STOCK"}
+                />
               </div>
 
               {/* Description with accordion support */}
@@ -176,7 +208,7 @@ export default async function ProductPage({
                   [&_summary::-webkit-details-marker]:hidden
                   [&_details[open]_summary]:text-gold
                 "
-                dangerouslySetInnerHTML={{ __html: product.description }}
+                dangerouslySetInnerHTML={{ __html: p.description }}
               />
             </div>
           </div>

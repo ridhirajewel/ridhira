@@ -20,6 +20,10 @@ interface CheckoutRequestBody {
   paymentMethodTitle: string;
   customerNote?: string;
   setPaid?: boolean;
+  /** Razorpay payment_id returned by the client-side modal on success */
+  razorpayPaymentId?: string;
+  /** Razorpay order_id used to create the payment */
+  razorpayOrderId?: string;
 }
 
 // ---------- What this route returns ----------
@@ -105,11 +109,14 @@ function toMoneyAmount(amount: string, currencyCode: string): MoneyAmount {
 }
 
 function toWooCommerceOrderPayload(body: CheckoutRequestBody) {
+  const isRazorpay = body.paymentMethod === "razorpay" && !!body.razorpayPaymentId;
   return {
     payment_method: body.paymentMethod,
     payment_method_title: body.paymentMethodTitle,
-    set_paid: body.setPaid ?? false,
+    set_paid: isRazorpay ? true : (body.setPaid ?? false),
     customer_note: body.customerNote ?? "",
+    // When Razorpay: store the payment ID as the WooCommerce transaction_id
+    ...(body.razorpayPaymentId ? { transaction_id: body.razorpayPaymentId } : {}),
     billing: {
       first_name: body.billing.firstName,
       last_name: body.billing.lastName,

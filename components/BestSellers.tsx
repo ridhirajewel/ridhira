@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import ProductCard from "./ProductCard";
+import { parseWooPrice } from "@/lib/format";
 
 interface MoneyAmount {
   amount: string;
@@ -103,13 +104,6 @@ const LATEST_PRODUCTS_QUERY = `
 
 const WP_GRAPHQL_ENDPOINT = "https://wp.ridhira.in/graphql";
 
-// Helper to strip HTML and commas from WPGraphQL price strings
-const extractAmount = (priceStr?: string) => {
-  if (!priceStr) return "0";
-  const match = priceStr.replace(/,/g, '').match(/[\d.]+/);
-  return match ? match[0] : "0";
-};
-
 const createMoneyObj = (amount: string): MoneyAmount => ({
   amount: amount || "0",
   currencyCode: "INR",
@@ -180,9 +174,9 @@ export default function BestSellers() {
             categories: product.productCategories?.nodes ?? [],
             
             // Re-mapped as strict MoneyAmount objects
-            price: createMoneyObj(extractAmount(product.price)),
-            regularPrice: createMoneyObj(extractAmount(product.regularPrice ?? product.price)),
-            salePrice: product.salePrice ? createMoneyObj(extractAmount(product.salePrice)) : undefined,
+            price: createMoneyObj(parseWooPrice(product.price)),
+            regularPrice: createMoneyObj(parseWooPrice(product.regularPrice ?? product.price)),
+            salePrice: product.salePrice ? createMoneyObj(parseWooPrice(product.salePrice)) : undefined,
             
             averageRating: product.averageRating ?? 0,
             reviewCount: product.reviewCount ?? 0,

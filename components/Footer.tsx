@@ -98,6 +98,25 @@ export default function Footer() {
               <a href="/profile" className="hover:text-white transition-colors">
                 Profile
               </a>
+              <a href="/our-story" className="hover:text-white transition-colors">
+                Our Story
+              </a>
+            </div>
+          </div>
+          <div>
+            <h3 className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white">
+              Policies
+            </h3>
+            <div className="flex flex-col gap-2 text-sm text-gray-400">
+              <a href="/policies/returns" className="hover:text-white transition-colors">
+                Returns & Exchange
+              </a>
+              <a href="/policies/shipping" className="hover:text-white transition-colors">
+                Shipping
+              </a>
+              <a href="/policies/terms" className="hover:text-white transition-colors">
+                Terms & Conditions
+              </a>
             </div>
           </div>
           <div className="flex items-center gap-4 mt-1">

@@ -212,7 +212,7 @@ export default async function CollectionPage({
               Home
             </Link>
             <span>/</span>
-            <Link href="/collections" className="transition hover:text-gold">
+            <Link href="/" className="transition hover:text-gold">
               Collections
             </Link>
             <span>/</span>
@@ -250,7 +250,7 @@ export default async function CollectionPage({
                 Check back soon, or explore our other collections.
               </p>
               <Link
-                href="/collections"
+                href="/"
                 className="mt-6 border border-ink px-6 py-3 text-[12px] font-medium uppercase tracking-[0.2em] text-ink transition hover:bg-ink hover:text-white"
               >
                 Browse Collections

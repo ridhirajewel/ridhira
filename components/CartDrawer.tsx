@@ -139,6 +139,14 @@ export default function CartDrawer() {
                 {formatMoney(cart.subtotal)}
               </span>
             </div>
+
+            {/* Stock warning — surfaces OOS items before the user reaches checkout */}
+            {cart.items.some((item) => item.attributes?.some((a) => a.name === "__oos")) && (
+              <p className="mb-3 rounded-sm border border-oxblood/30 bg-oxblood/10 px-3 py-2 text-xs text-oxblood">
+                One or more items may be out of stock. Please review before checkout.
+              </p>
+            )}
+
             <button
               onClick={() => {
                 closeCartDrawer();

@@ -43,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         ref={frameRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setLens(null)}
-        className="relative aspect-[4/5] w-full cursor-crosshair overflow-hidden bg-white"
+        className="relative aspect-square w-full cursor-crosshair overflow-hidden bg-white"
       >
         <Image
           src={product.images[0].sourceUrl}
@@ -127,14 +127,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
         </div>
-        {product.averageRating && (
+        {/* {product.averageRating && (
           <div className="mt-0.5 flex items-center gap-1">
             <Star size={12} className="fill-gold text-gold" />
             <span className="text-xs text-bark/60">
               {product.averageRating.toFixed(1)} ({product.reviewCount})
             </span>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -7,15 +7,18 @@ import { useCart } from "@/context/CartContext";
 
 interface ProductActionsProps {
   databaseId: number;
+  stockStatus: string;
 }
 
 type ButtonStatus = "idle" | "loading" | "success" | "error";
 
-export default function ProductActions({ databaseId }: ProductActionsProps) {
+export default function ProductActions({ databaseId, stockStatus }: ProductActionsProps) {
   const { addToCart } = useCart();
   const router = useRouter();
   const [cartStatus, setCartStatus] = useState<ButtonStatus>("idle");
   const [buyStatus, setBuyStatus] = useState<ButtonStatus>("idle");
+
+  const isOutOfStock = stockStatus === "OUT_OF_STOCK";
 
   const resetAfterDelay = (
     setter: React.Dispatch<React.SetStateAction<ButtonStatus>>
@@ -24,7 +27,7 @@ export default function ProductActions({ databaseId }: ProductActionsProps) {
   };
 
   const handleAddToCart = async () => {
-    if (cartStatus === "loading") return;
+    if (cartStatus === "loading" || isOutOfStock) return;
 
     setCartStatus("loading");
     try {
@@ -42,7 +45,7 @@ export default function ProductActions({ databaseId }: ProductActionsProps) {
   };
 
   const handleBuyNow = async () => {
-    if (buyStatus === "loading") return;
+    if (buyStatus === "loading" || isOutOfStock) return;
 
     setBuyStatus("loading");
     try {
@@ -52,10 +55,7 @@ export default function ProductActions({ databaseId }: ProductActionsProps) {
 
       await addToCart(databaseId);
 
-      // A hard navigation (window.location.href) reloads the document before
-      // React has a chance to flush state, wiping whatever addToCart just wrote
-      // to localStorage. A tiny delay plus a client-side router.push avoids the
-      // reload entirely, so the cart write survives the navigation.
+      // A tiny delay lets localStorage flush before the client router navigates
       await new Promise((resolve) => setTimeout(resolve, 150));
       router.push("/checkout");
     } catch (err) {
@@ -64,6 +64,25 @@ export default function ProductActions({ databaseId }: ProductActionsProps) {
       resetAfterDelay(setBuyStatus);
     }
   };
+
+  if (isOutOfStock) {
+    return (
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <button
+          disabled
+          className="flex flex-1 items-center justify-center gap-2 border border-ink/30 bg-transparent px-6 py-4 text-[12px] font-medium uppercase tracking-[0.2em] text-ink/40 cursor-not-allowed"
+        >
+          Out of Stock
+        </button>
+        <button
+          disabled
+          className="flex flex-1 items-center justify-center gap-2 border border-ink/30 bg-ink/30 px-6 py-4 text-[12px] font-medium uppercase tracking-[0.2em] text-white cursor-not-allowed"
+        >
+          Unavailable
+        </button>
+      </div>
+    );
+  }
 
   const cartLabel =
     cartStatus === "loading"

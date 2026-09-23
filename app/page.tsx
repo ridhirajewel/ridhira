@@ -8,16 +8,19 @@ import GlowDiaryReels from "@/components/ReelCarousel"
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import FAQ from "@/components/FAQSection";
+import { getCategories } from "@/lib/graphql";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const categories = await getCategories();
+
   return (
     <>
       <AnnouncementBar />
       <Header />
       <main>
         <Hero />
-        <FeaturedCollections />
-         <CraftsmanshipSpotlight />
+        <FeaturedCollections categories={categories} />
+        <CraftsmanshipSpotlight />
         <BestSellers />
         <GlowDiaryReels />
         <FAQ />

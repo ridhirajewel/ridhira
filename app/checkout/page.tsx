@@ -2,10 +2,41 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { Loader2, CheckCircle, AlertCircle, Truck, CreditCard, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatMoney } from "@/lib/format";
 import type { CheckoutAddress, LineItemInput, Order } from "@/types/woocommerce";
+
+// Razorpay is injected by the external checkout.js script
+declare global {
+  interface Window {
+    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+  }
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  prefill: { name: string; email: string; contact: string };
+  theme: { color: string };
+  handler: (response: RazorpayPaymentResponse) => void;
+  modal: { ondismiss: () => void };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+interface RazorpayPaymentResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
 
 interface FormErrors {
   billing?: Partial<Record<keyof BillingAddress, string>>;
@@ -103,8 +134,8 @@ export default function CheckoutPage() {
     if (name === "email" && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       return "Invalid email address";
     }
-    if (name === "phone" && value && !/^[\d\s\-\+\(\)]{10,}$/.test(value)) {
-      return "Invalid phone number";
+    if (name === "phone" && value && !/^\d{10}$/.test(value.replace(/[\s\-\+\(\)]/g, ""))) {
+      return "Invalid phone number (10 digits required)";
     }
     if (name === "postcode" && value && !/^\d{6}$/.test(value)) {
       return "Invalid PIN code (6 digits)";
@@ -185,6 +216,59 @@ export default function CheckoutPage() {
     }));
   };
 
+  const createWooOrder = async (
+    lineItems: LineItemInput[],
+    razorpayPaymentId?: string,
+    razorpayOrderId?: string
+  ): Promise<Order> => {
+    const payload = {
+      billing: formData.billing,
+      shipping: formData.sameAsBilling ? formData.billing : formData.shipping,
+      lineItems,
+      paymentMethod: formData.paymentMethod,
+      paymentMethodTitle:
+        formData.paymentMethod === "cod"
+          ? "Cash on Delivery"
+          : "Razorpay",
+      customerNote: formData.customerNote,
+      setPaid: formData.paymentMethod === "razorpay",
+      ...(razorpayPaymentId ? { razorpayPaymentId } : {}),
+      ...(razorpayOrderId ? { razorpayOrderId } : {}),
+    };
+
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data: CheckoutApiResponse = await response.json();
+
+    if (!response.ok || !data.success) {
+      const errorMessage =
+        !data.success && data.errors?.[0]?.message
+          ? data.errors[0].message
+          : "Failed to place order. Please try again.";
+      throw new Error(errorMessage);
+    }
+
+    return data.order;
+  };
+
+  const handleOrderSuccess = (order: Order) => {
+    setSubmitSuccess(true);
+    localStorage.removeItem("luxe-atelier-cart");
+    // Stash the order so the success page can display it without re-querying
+    try {
+      localStorage.setItem("luxe-atelier-last-order", JSON.stringify(order));
+    } catch {
+      // Silently ignore storage errors
+    }
+    setTimeout(() => {
+      router.push(`/checkout/order-success/${order.databaseId}`);
+    }, 1500);
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
@@ -196,43 +280,66 @@ export default function CheckoutPage() {
     try {
       const lineItems = prepareLineItems();
 
-      const payload = {
-        billing: formData.billing,
-        shipping: formData.sameAsBilling ? formData.billing : formData.shipping,
-        lineItems,
-        paymentMethod: formData.paymentMethod,
-        paymentMethodTitle: formData.paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
-        customerNote: formData.customerNote,
-        setPaid: false,
-      };
-
-      // Route through our own API — the frontend never talks to WooCommerce
-      // directly, so there's no CORS issue and no WC keys exposed to the browser.
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data: CheckoutApiResponse = await response.json();
-
-      if (!response.ok || !data.success) {
-        const errorMessage =
-          !data.success && data.errors?.[0]?.message
-            ? data.errors[0].message
-            : "Failed to place order. Please try again.";
-        throw new Error(errorMessage);
+      // ── COD path ─────────────────────────────────────────────────────────
+      if (formData.paymentMethod === "cod") {
+        const order = await createWooOrder(lineItems);
+        handleOrderSuccess(order);
+        return;
       }
 
-      setSubmitSuccess(true);
-      localStorage.removeItem("luxe-atelier-cart");
+      // ── Razorpay path ─────────────────────────────────────────────────────
+      const amountInPaise = Math.round(
+        cart.items.reduce((sum, item) => sum + Number(item.subtotal.amount), 0) * 100
+      );
 
-      setTimeout(() => {
-        router.push(`/checkout/order-success/${data.order.databaseId}`);
-        router.refresh();
-      }, 1500);
+      const rzpOrderRes = await fetch("/api/razorpay/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: amountInPaise, currency: "INR" }),
+      });
+
+      const rzpOrderData = await rzpOrderRes.json();
+
+      if (!rzpOrderRes.ok || !rzpOrderData.success) {
+        throw new Error(rzpOrderData.error ?? "Could not initialise payment. Please try COD.");
+      }
+
+      // Open Razorpay modal — resolves via handler callback
+      await new Promise<void>((resolve, reject) => {
+        const rzp = new window.Razorpay({
+          key: rzpOrderData.keyId,
+          amount: rzpOrderData.amount,
+          currency: rzpOrderData.currency,
+          name: "Ridhira",
+          description: "Luxury Jewellery",
+          order_id: rzpOrderData.orderId,
+          prefill: {
+            name: `${formData.billing.firstName} ${formData.billing.lastName}`.trim(),
+            email: formData.billing.email,
+            contact: formData.billing.phone,
+          },
+          theme: { color: "#A9863C" },
+          handler: async (response) => {
+            try {
+              const order = await createWooOrder(
+                lineItems,
+                response.razorpay_payment_id,
+                response.razorpay_order_id
+              );
+              handleOrderSuccess(order);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          },
+          modal: {
+            ondismiss: () => {
+              reject(new Error("Payment cancelled. Your order was not placed."));
+            },
+          },
+        });
+        rzp.open();
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred";
       setSubmitError(message);
@@ -289,6 +396,11 @@ export default function CheckoutPage() {
 
   return (
     <section className="bg-ivory py-10 lg:py-16">
+      {/* Razorpay JS SDK — loaded lazily so it doesn't block initial render */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="lazyOnload"
+      />
       <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
         <h1 className="font-serif text-[30px] leading-tight text-ink lg:text-[38px] mb-10">
           Checkout
@@ -356,7 +468,7 @@ export default function CheckoutPage() {
                     <span className="ml-auto text-xs text-bark/50">Pay when you receive your order</span>
                   </div>
                 </label>
-                <label className="flex items-center gap-3 cursor-pointer opacity-50 pointer-events-none">
+                <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="radio"
                     name="paymentMethod"
@@ -364,12 +476,12 @@ export default function CheckoutPage() {
                     checked={formData.paymentMethod === "razorpay"}
                     onChange={(e) => setFormData((prev) => ({ ...prev, paymentMethod: e.target.value }))}
                     className="w-4 h-4 text-gold border-ink/30 focus:ring-gold focus:ring-2"
-                    disabled
+                    disabled={isSubmitting}
                   />
-                  <div className="flex items-center gap-3 p-3 border border-hairline rounded-sm">
+                  <div className="flex items-center gap-3 p-3 border border-hairline rounded-sm hover:border-gold transition-colors">
                     <CreditCard className="text-ink/60" size={20} strokeWidth={1.5} />
                     <span className="text-sm text-ink">Online Payment (Razorpay)</span>
-                    <span className="ml-auto text-xs text-bark/50">Coming soon</span>
+                    <span className="ml-auto text-xs text-bark/50">Cards, UPI, Net Banking</span>
                   </div>
                 </label>
               </div>

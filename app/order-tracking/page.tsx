@@ -5,74 +5,6 @@ import { Loader2, Search, Truck, CheckCircle, AlertCircle, Info, Calendar, MapPi
 import { formatMoney } from "@/lib/format";
 import type { Order, OrderStatus, MoneyAmount } from "@/types/woocommerce";
 
-const WP_GRAPHQL_ENDPOINT = "https://wp.ridhira.in/graphql";
-
-const GET_ORDER_QUERY = `
-  query GetOrderByIdAndEmail($id: ID!, $email: String!) {
-    order(id: $id, idType: DATABASE_ID) {
-      databaseId
-      orderNumber
-      status
-      currencyCode
-      billing {
-        firstName
-        lastName
-        email
-        phone
-      }
-      shipping {
-        firstName
-        lastName
-        address1
-        address2
-        city
-        state
-        postcode
-        country
-      }
-      lineItems {
-        nodes {
-          id
-          name
-          productId
-          variationId
-          quantity
-          total {
-            amount
-            currencyCode
-            currencySymbol
-          }
-          subtotal {
-            amount
-            currencyCode
-            currencySymbol
-          }
-          metaData {
-            key
-            value
-          }
-        }
-      }
-      shippingTotal {
-        amount
-        currencyCode
-        currencySymbol
-      }
-      total {
-        amount
-        currencyCode
-        currencySymbol
-      }
-      dateCreated
-      dateModified
-      paymentMethod
-      paymentMethodTitle
-      transactionId
-      customerNote
-    }
-  }
-`;
-
 interface FormState {
   orderId: string;
   email: string;
@@ -199,40 +131,27 @@ export default function OrderTrackingPage() {
     setErrors((prev) => ({ ...prev, general: undefined }));
 
     try {
-      const response = await fetch(WP_GRAPHQL_ENDPOINT, {
+      const response = await fetch("/api/order-tracking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: GET_ORDER_QUERY,
-          variables: { id: formData.orderId.trim(), email: formData.email.trim() },
+          orderId: formData.orderId.trim(),
+          email: formData.email.trim(),
         }),
       });
 
       const json = await response.json();
 
-      if (json.errors) {
-        throw new Error(json.errors[0]?.message || "Failed to fetch order");
+      if (!response.ok || json.error) {
+        throw new Error(json.error || "Failed to fetch order");
       }
 
-      const orderData = json?.data?.order;
-
-      if (!orderData) {
+      if (!json.success || json.notFound || !json.order) {
         setNotFound(true);
         return;
       }
 
-      if (orderData.billing?.email?.toLowerCase() !== formData.email.trim().toLowerCase()) {
-        setNotFound(true);
-        return;
-      }
-
-      const formattedOrder: Order = {
-        ...orderData,
-        lineItems: orderData.lineItems?.nodes ?? [],
-        shipping: orderData.shipping ?? orderData.billing,
-      };
-
-      setOrder(formattedOrder);
+      setOrder(json.order as Order);
     } catch (err) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred";
       setErrors({ general: message });

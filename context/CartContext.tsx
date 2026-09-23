@@ -19,6 +19,7 @@ import type {
   MoneyAmount,
 } from "@/types/woocommerce";
 import { products as catalog } from "@/lib/mock-data";
+import { parseWooPrice } from "@/lib/format";
 
 const WP_GRAPHQL_ENDPOINT = "https://wp.ridhira.in/graphql";
 
@@ -180,9 +181,10 @@ async function fetchProductFromAPI(databaseId: number): Promise<Product | null> 
     const data = json.data?.product;
     if (!data) return null;
 
-    const priceAmount = data.price ?? data.regularPrice ?? "0";
-    const regularPriceAmount = data.regularPrice ?? data.price ?? "0";
-    const salePriceAmount = data.salePrice && data.onSale ? data.salePrice : undefined;
+    const priceAmount = parseWooPrice(data.price ?? data.regularPrice);
+    const regularPriceAmount = parseWooPrice(data.regularPrice ?? data.price);
+    const salePriceAmount =
+      data.salePrice && data.onSale ? parseWooPrice(data.salePrice) : undefined;
 
     const moneyAmount = (amount: string): MoneyAmount => ({
       amount,
@@ -220,9 +222,9 @@ async function fetchProductFromAPI(databaseId: number): Promise<Product | null> 
         id: `variation-${v.databaseId}`,
         databaseId: v.databaseId,
         name: v.name,
-        price: moneyAmount(v.price),
-        regularPrice: moneyAmount(v.regularPrice),
-        salePrice: v.salePrice ? moneyAmount(v.salePrice) : undefined,
+        price: moneyAmount(parseWooPrice(v.price)),
+        regularPrice: moneyAmount(parseWooPrice(v.regularPrice)),
+        salePrice: v.salePrice ? moneyAmount(parseWooPrice(v.salePrice)) : undefined,
         stockStatus: v.stockStatus as "IN_STOCK" | "OUT_OF_STOCK" | "ON_BACKORDER",
         attributes: v.attributes?.nodes || [],
         image: v.image,
