@@ -62,7 +62,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <button
+            {/* <button
               aria-label="Search"
               onClick={() => setSearchOpen((v) => !v)}
               className="rounded-full p-2 text-ink/80 transition hover:bg-ink/5 hover:text-gold"
@@ -74,7 +74,7 @@ export default function Header() {
               className="hidden rounded-full p-2 text-ink/80 transition hover:bg-ink/5 hover:text-gold sm:inline-flex"
             >
               <Heart size={19} strokeWidth={1.5} />
-            </button>
+            </button> */}
             <button
               aria-label={`Open cart, ${cart.itemsCount} items`}
               onClick={openCartDrawer}

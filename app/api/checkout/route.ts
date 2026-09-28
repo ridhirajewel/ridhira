@@ -20,6 +20,10 @@ interface CheckoutRequestBody {
   paymentMethodTitle: string;
   customerNote?: string;
   setPaid?: boolean;
+  /** Flat shipping charge (from ACF storeSettings), in store currency */
+  shippingAmount?: number;
+  /** Calculated tax (from ACF storeSettings), in store currency */
+  taxAmount?: number;
   /** Razorpay payment_id returned by the client-side modal on success */
   razorpayPaymentId?: string;
   /** Razorpay order_id used to create the payment */
@@ -27,15 +31,12 @@ interface CheckoutRequestBody {
 }
 
 // ---------- What this route returns ----------
-// A discriminated union rather than the shared CreateOrderResponse type,
-// since on failure there is no real Order to attach.
 
 type CheckoutApiResponse =
   | { success: true; order: Order }
   | { success: false; errors: { code: string; message: string }[] };
 
 // ---------- Shape of the raw WooCommerce REST API v3 response ----------
-// Only the fields this route actually reads.
 
 interface WCMetaData {
   key: string;
@@ -108,14 +109,23 @@ function toMoneyAmount(amount: string, currencyCode: string): MoneyAmount {
   };
 }
 
+/** Coerce a client-supplied amount into a safe, non-negative, 2-decimal number. */
+function sanitizeAmount(value: unknown): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.round(n * 100) / 100;
+}
+
 function toWooCommerceOrderPayload(body: CheckoutRequestBody) {
   const isRazorpay = body.paymentMethod === "razorpay" && !!body.razorpayPaymentId;
+  const shippingAmount = sanitizeAmount(body.shippingAmount);
+  const taxAmount = sanitizeAmount(body.taxAmount);
+
   return {
     payment_method: body.paymentMethod,
     payment_method_title: body.paymentMethodTitle,
     set_paid: isRazorpay ? true : (body.setPaid ?? false),
     customer_note: body.customerNote ?? "",
-    // When Razorpay: store the payment ID as the WooCommerce transaction_id
     ...(body.razorpayPaymentId ? { transaction_id: body.razorpayPaymentId } : {}),
     billing: {
       first_name: body.billing.firstName,
@@ -154,6 +164,31 @@ function toWooCommerceOrderPayload(body: CheckoutRequestBody) {
           }
         : {}),
     })),
+    // Flat shipping from ACF storeSettings
+    ...(shippingAmount > 0
+      ? {
+          shipping_lines: [
+            {
+              method_id: "flat_rate",
+              method_title: "Flat Rate Shipping",
+              total: String(shippingAmount),
+            },
+          ],
+        }
+      : {}),
+    // Tax from ACF storeSettings, recorded as a custom fee because we bypass Woo tax zones
+    ...(taxAmount > 0
+      ? {
+          fee_lines: [
+            {
+              name: "Tax",
+              tax_class: "",
+              tax_status: "none",
+              total: String(taxAmount),
+            },
+          ],
+        }
+      : {}),
   };
 }
 

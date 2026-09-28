@@ -166,3 +166,42 @@ export async function getProducts(first: number = 8): Promise<Product[]> {
   const data = await fetchGraphQL(query, { first });
   return data?.products?.nodes || [];
 }
+
+export interface StoreSettings {
+  shippingCharge: number;
+  taxPercentage: number;
+}
+
+const DEFAULT_STORE_SETTINGS: StoreSettings = {
+  shippingCharge: 0,
+  taxPercentage: 0,
+};
+
+/** ACF number fields can come back as numbers, numeric strings, or null. */
+function toSafeNumber(value: unknown): number {
+  const n = typeof value === "number" ? value : parseFloat(String(value ?? ""));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+export async function getStoreSettings(): Promise<StoreSettings> {
+  const query = `
+    query GetStoreSettings {
+      page(id: "home", idType: URI) {
+        storeSettings {
+          shippingCharge
+          taxPercentage
+        }
+      }
+    }
+  `;
+
+  const data = await fetchGraphQL(query).catch(() => null);
+  const raw = data?.page?.storeSettings;
+
+  if (!raw) return DEFAULT_STORE_SETTINGS;
+
+  return {
+    shippingCharge: toSafeNumber(raw.shippingCharge),
+    taxPercentage: toSafeNumber(raw.taxPercentage),
+  };
+}

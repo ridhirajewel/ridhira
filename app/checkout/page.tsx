@@ -6,6 +6,7 @@ import Script from "next/script";
 import { Loader2, CheckCircle, AlertCircle, Truck, CreditCard, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatMoney } from "@/lib/format";
+import type { StoreSettings } from "@/lib/graphql";
 import type { CheckoutAddress, LineItemInput, Order } from "@/types/woocommerce";
 
 // Razorpay is injected by the external checkout.js script
@@ -108,6 +109,8 @@ const fieldConfig = [
 type FieldConfig = typeof fieldConfig[number];
 type BillingFieldName = FieldConfig["name"];
 
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
 export default function CheckoutPage() {
   const { cart, isHydrated, closeCartDrawer } = useCart();
   const router = useRouter();
@@ -116,6 +119,11 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings>({
+    shippingCharge: 0,
+    taxPercentage: 0,
+  });
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   // Only redirect after the cart has been hydrated from localStorage.
   // Without this guard, the effect fires on first render when cart.items is
@@ -129,6 +137,40 @@ export default function CheckoutPage() {
   useEffect(() => {
     closeCartDrawer();
   }, [closeCartDrawer]);
+
+  // Fetch flat shipping + tax % (ACF storeSettings on the WP homepage)
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/store-settings")
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("settings request failed"))))
+      .then((s: StoreSettings) => {
+        if (cancelled) return;
+        setStoreSettings({
+          shippingCharge: Number(s.shippingCharge) || 0,
+          taxPercentage: Number(s.taxPercentage) || 0,
+        });
+      })
+      .catch(() => {
+        // Fall back to 0 / 0 (already the default state)
+      })
+      .finally(() => {
+        if (!cancelled) setSettingsLoaded(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // ── Dynamic totals ─────────────────────────────────────────────────────
+  const subtotalAmount = Number(cart.subtotal.amount) || 0;
+  const shippingAmount = round2(storeSettings.shippingCharge);
+  const taxAmount = round2((subtotalAmount + shippingAmount) * (storeSettings.taxPercentage / 100));
+  const finalTotal = round2(subtotalAmount + shippingAmount + taxAmount);
+
+  // Reuse the cart's money shape so formatMoney gets the currency fields it expects
+  const toMoney = (value: number) => ({ ...cart.subtotal, amount: value.toFixed(2) });
 
   const validateField = (name: keyof BillingAddress, value: string, isRequired: boolean): string | undefined => {
     if (isRequired && !value.trim()) {
@@ -235,6 +277,8 @@ export default function CheckoutPage() {
           : "Razorpay",
       customerNote: formData.customerNote,
       setPaid: formData.paymentMethod === "razorpay",
+      shippingAmount,
+      taxAmount,
       ...(razorpayPaymentId ? { razorpayPaymentId } : {}),
       ...(razorpayOrderId ? { razorpayOrderId } : {}),
     };
@@ -291,9 +335,8 @@ export default function CheckoutPage() {
       }
 
       // ── Razorpay path ─────────────────────────────────────────────────────
-      const amountInPaise = Math.round(
-        cart.items.reduce((sum, item) => sum + Number(item.subtotal.amount), 0) * 100
-      );
+      // Charge the full amount: subtotal + shipping + tax
+      const amountInPaise = Math.round(finalTotal * 100);
 
       const rzpOrderRes = await fetch("/api/razorpay/order", {
         method: "POST",
@@ -554,21 +597,25 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex justify-between text-sm text-ink">
                     <span>Shipping</span>
-                    <span className="font-serif">Free</span>
+                    <span className="font-serif">
+                      {shippingAmount > 0 ? formatMoney(toMoney(shippingAmount)) : "Free"}
+                    </span>
                   </div>
-                  <div className="flex justify-between text-sm text-ink">
-                    <span>Tax</span>
-                    <span className="font-serif">Included</span>
-                  </div>
+                  {storeSettings.taxPercentage > 0 && (
+                    <div className="flex justify-between text-sm text-ink">
+                      <span>Tax ({storeSettings.taxPercentage}%)</span>
+                      <span className="font-serif">{formatMoney(toMoney(taxAmount))}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-lg font-serif text-ink border-t border-hairline pt-3">
                     <span>Total</span>
-                    <span>{formatMoney(cart.total)}</span>
+                    <span>{formatMoney(toMoney(finalTotal))}</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isSubmitting || submitSuccess}
+                  disabled={isSubmitting || submitSuccess || !settingsLoaded}
                   className="mt-6 w-full bg-ink py-3.5 text-sm uppercase tracking-[0.14em] text-ivory transition hover:bg-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
