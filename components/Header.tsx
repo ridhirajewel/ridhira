@@ -8,12 +8,10 @@ import Image from "next/image";
 import logo from "../app/assests/ridhira_transparent.svg";
 
 const navLinks = [
-  { label: "New Arrivals", href: "/new-arrivals" },
-  { label: "Rings", href: "/collections/rings" },
-  { label: "Necklaces", href: "/collections/necklaces" },
-  { label: "Earrings", href: "/collections/earrings" },
-  { label: "Bridal", href: "/collections/bridal" },
-  { label: "The Atelier", href: "/our-story" },
+  { label: "Home", href: "/" },
+  { label: "Our Story", href: "/our-story" },
+  { label: "Contact Us", href: "/contact" },
+ 
 ];
 
 export default function Header() {
