@@ -10,11 +10,10 @@ interface MobileMenuProps {
 }
 
 const navLinks = [
-  { label: "New Arrivals", href: "/new-arrivals" },
-  { label: "Best Sellers", href: "/best-sellers" },
-  { label: "Bridal", href: "/collections/bridal" },
-  { label: "The Atelier", href: "/our-story" },
-  { label: "Contact", href: "/contact" },
+  { label: "Home", href: "/" },
+  { label: "Our Story", href: "/our-story" },
+  { label: "Contact Us", href: "/contact" },
+ 
 ];
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
@@ -64,7 +63,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           ))}
         </nav>
 
-        <div className="px-6 py-4">
+        {/* <div className="px-6 py-4">
           <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.14em] text-bark/60">
             Shop by category
           </p>
@@ -79,7 +78,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </a>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductGallery from "./ProductGallery";
 import ProductActions from "./ProductActions";
+import footer from "@/components/Footer";
+import Footer from "@/components/Footer";
 
 const WP_GRAPHQL_ENDPOINT = "https://wp.ridhira.in/graphql";
 
@@ -125,6 +127,7 @@ export default async function ProductPage({
     p.regularPrice !== p.price;
 
   return (
+    <>
     <section className="bg-ivory py-10 lg:py-16">
       <div className="mx-auto max-w-[1400px] px-5 lg:px-10">
 
@@ -214,6 +217,9 @@ export default async function ProductPage({
           </div>
         </div>
       </div>
+      
     </section>
+    <Footer />
+    </>
   );
 }

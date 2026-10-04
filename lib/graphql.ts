@@ -32,7 +32,6 @@ export async function getPageBySlug(slug: string) {
       }
     }
   `;
-  // WPGraphQL resolves pages by URI (slug path), not a "SLUG" enum variant
   const data = await fetchGraphQL(query, { id: slug }).catch(() => null);
   return data?.page ?? null;
 }
@@ -52,12 +51,9 @@ export async function getAllPageSlugs() {
 }
 
 export interface HeroBannerFields {
-  heroBanner: {
-    node: {
-      sourceUrl: string;
-      altText: string;
-    } | null;
-  } | null;
+  heroBanner: { node: { sourceUrl: string; altText: string } | null } | null;
+  heroBanner2: { node: { sourceUrl: string; altText: string } | null } | null;
+  heroBanner3: { node: { sourceUrl: string; altText: string } | null } | null;
   bannerHeading: string | null;
 }
 
@@ -72,16 +68,29 @@ export async function getHeroBanner(): Promise<HeroBannerFields | null> {
               altText
             }
           }
+          heroBanner2 {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+          heroBanner3 {
+            node {
+              sourceUrl
+              altText
+            }
+          }
           bannerHeading
         }
       }
     }
   `;
 
-  const data = await fetchGraphQL(query).catch(() => null);
-
-  console.log("Hero Banner Data:", data);
-
+  const data = await fetchGraphQL(query).catch((e) => {
+    console.error("[getHeroBanner]", e);
+    return null;
+  });
+  console.log("[getHeroBanner] data:", JSON.stringify(data, null, 2));
   return data?.page?.herobanner ?? null;
 }
 
@@ -177,7 +186,6 @@ const DEFAULT_STORE_SETTINGS: StoreSettings = {
   taxPercentage: 0,
 };
 
-/** ACF number fields can come back as numbers, numeric strings, or null. */
 function toSafeNumber(value: unknown): number {
   const n = typeof value === "number" ? value : parseFloat(String(value ?? ""));
   return Number.isFinite(n) && n > 0 ? n : 0;

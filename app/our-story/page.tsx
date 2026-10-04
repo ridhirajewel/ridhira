@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Caveat, Playfair_Display, Anton } from "next/font/google";
+import footer from "@/components/Footer"
 import collage from "@/app/assests/Cream Aesthetic Minimalist Vision Board Desktop Wallpaper (1).png"
+import Footer from "@/components/Footer";
 
 const handwriting = Caveat({
   subsets: ["latin"],
@@ -230,6 +232,8 @@ export default function OurStory() {
           {"love,\nRidhira"}
         </p>
       </section>
+      <Footer/>
     </main>
+    
   );
 }

@@ -1,0 +1,39 @@
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[2].use[1]!./node_modules/next/dist/build/webpack/loaders/next-font-loader/index.js??ruleSet[1].rules[14].oneOf[2].use[2]!./node_modules/next/font/google/target.css?{"path":"app/our-story/page.tsx","import":"Caveat","arguments":[{"subsets":["latin"],"weight":["500","600","700"]}],"variableName":"handwriting"} ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+@font-face {
+  font-family: '__Caveat_Fallback_5702f9';
+  src: local("Arial");
+  ascent-override:124.77%;
+  descent-override:38.99%;
+  line-gap-override:0.00%;
+  size-adjust:76.94%;
+}@font-face {font-family: '__Caveat_Fallback_Fallback_5702f9';src: local("Arial");ascent-override: 124.77%;descent-override: 38.99%;line-gap-override: 0.00%;size-adjust: 76.94%
+}.__className_5702f9 {font-family: '__Caveat_Fallback_5702f9', '__Caveat_Fallback_Fallback_5702f9';font-style: normal
+}
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[2].use[1]!./node_modules/next/dist/build/webpack/loaders/next-font-loader/index.js??ruleSet[1].rules[14].oneOf[2].use[2]!./node_modules/next/font/google/target.css?{"path":"app/our-story/page.tsx","import":"Playfair_Display","arguments":[{"subsets":["latin"],"weight":["400","500"]}],"variableName":"serif"} ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+@font-face {
+  font-family: '__Playfair_Display_Fallback_99867c';
+  src: local("Times New Roman");
+  ascent-override:97.25%;
+  descent-override:22.56%;
+  line-gap-override:0.00%;
+  size-adjust:111.26%;
+}@font-face {font-family: '__Playfair_Display_Fallback_Fallback_99867c';src: local("Times New Roman");ascent-override: 97.25%;descent-override: 22.56%;line-gap-override: 0.00%;size-adjust: 111.26%
+}.__className_99867c {font-family: '__Playfair_Display_Fallback_99867c', '__Playfair_Display_Fallback_Fallback_99867c';font-style: normal
+}
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[2].use[1]!./node_modules/next/dist/build/webpack/loaders/next-font-loader/index.js??ruleSet[1].rules[14].oneOf[2].use[2]!./node_modules/next/font/google/target.css?{"path":"app/our-story/page.tsx","import":"Anton","arguments":[{"subsets":["latin"],"weight":["400"]}],"variableName":"display"} ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+@font-face {
+  font-family: '__Anton_Fallback_d6292c';
+  src: local("Arial");
+  ascent-override:129.70%;
+  descent-override:36.29%;
+  line-gap-override:0.00%;
+  size-adjust:90.69%;
+}@font-face {font-family: '__Anton_Fallback_Fallback_d6292c';src: local("Arial");ascent-override: 129.70%;descent-override: 36.29%;line-gap-override: 0.00%;size-adjust: 90.69%
+}.__className_d6292c {font-family: '__Anton_Fallback_d6292c', '__Anton_Fallback_Fallback_d6292c';font-weight: 400;font-style: normal
+}
