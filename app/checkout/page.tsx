@@ -126,13 +126,15 @@ export default function CheckoutPage() {
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   // Only redirect after the cart has been hydrated from localStorage.
-  // Without this guard, the effect fires on first render when cart.items is
-  // still [] and sends the user back to / even with a full cart.
   useEffect(() => {
+    // CRITICAL FIX: If an order was just placed successfully, do NOT redirect to home. 
+    // Let the timeout handle the proper redirect to the Order Success page.
+    if (submitSuccess) return;
+
     if (isHydrated && cart.items.length === 0) {
       router.push("/");
     }
-  }, [isHydrated, cart.items.length, router]);
+  }, [isHydrated, cart.items.length, router, submitSuccess]);
 
   useEffect(() => {
     closeCartDrawer();
