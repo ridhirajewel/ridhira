@@ -196,3 +196,66 @@ export async function getStoreSettings(): Promise<StoreSettings> {
     taxPercentage: toSafeNumber(raw.taxPercentage),
   };
 }
+
+// ─── BLOG POSTS ─────────────────────────────────────────────────────────
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  date: string;
+  excerpt: string;
+  content?: string;
+  featuredImage?: {
+    node: {
+      sourceUrl: string;
+      altText: string;
+    };
+  } | null;
+}
+
+export async function getBlogPosts(first: number = 20): Promise<BlogPost[]> {
+  const query = `
+    query GetBlogPosts($first: Int!) {
+      posts(first: $first, where: { orderby: { field: DATE, order: DESC } }) {
+        nodes {
+          id
+          title
+          slug
+          date
+          excerpt
+          featuredImage {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+        }
+      }
+    }
+  `;
+  const data = await fetchGraphQL(query, { first }).catch(() => null);
+  return data?.posts?.nodes || [];
+}
+
+export async function getSinglePost(slug: string): Promise<BlogPost | null> {
+  const query = `
+    query GetSinglePost($id: ID!) {
+      post(id: $id, idType: SLUG) {
+        id
+        title
+        slug
+        date
+        content
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+      }
+    }
+  `;
+  const data = await fetchGraphQL(query, { id: slug }).catch(() => null);
+  return data?.post ?? null;
+}
