@@ -1,7 +1,4 @@
 {
-  "/page": "app/page.js",
-  "/[slug]/page": "app/[slug]/page.js",
-  "/checkout/page": "app/checkout/page.js",
-  "/api/store-settings/route": "app/api/store-settings/route.js",
-  "/api/razorpay/order/route": "app/api/razorpay/order/route.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/page": "app/page.js"
 }

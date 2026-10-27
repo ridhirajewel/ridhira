@@ -5,40 +5,55 @@ const FALLBACK = {
   image:
     "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1800&auto=format&fit=crop",
   alt: "Model wearing layered gold jewellery",
-  heading: "Weight that feels\nlike intention.",
-  subheading:
-    "Solid gold pieces, cast and finished by hand in small batches — nothing plated, nothing rushed.",
-  buttonText: "Shop the Edit",
-  buttonLink: "/collections/our-collection",
+  link: "/collections/our-collection",
 };
-
-const EYEBROW = "The Winter Edit";
-const SECONDARY_CTA = { label: "Our Story", href: "/our-story" };
 
 export default async function Hero() {
   const fields = await getHeroBanner();
 
-  // Extract all three potential images
-  const rawImages = [
+  // Desktop Images
+  const rawDesktop = [
     fields?.heroBanner?.node,
     fields?.heroBanner2?.node,
     fields?.heroBanner3?.node,
   ];
 
-  // Filter out any empty fields from WordPress and format them
-  const slides = rawImages
+  // Mobile Images (Only 1 for now, pad the rest with null so they fall back to desktop)
+  const rawMobile = [
+    fields?.herobannermobile1?.node,
+    null,
+    null,
+  ];
+
+  // Clean Desktop Array
+  const desktopSlides = rawDesktop
     .filter((img): img is { sourceUrl: string; altText: string } => !!img?.sourceUrl)
     .map((img) => ({
       src: img.sourceUrl.trim(),
       alt: img.altText?.trim() || FALLBACK.alt,
     }));
 
-  // Fallback if the client hasn't uploaded any images yet
-  if (slides.length === 0) {
-    slides.push({ src: FALLBACK.image, alt: FALLBACK.alt });
+  if (desktopSlides.length === 0) {
+    desktopSlides.push({ src: FALLBACK.image, alt: FALLBACK.alt });
   }
 
-  const heading = fields?.bannerHeading?.trim() || FALLBACK.heading;
+  // Clean Mobile Array - If a mobile image doesn't exist, fallback to the desktop image for that slot
+  const mobileSlides = desktopSlides.map((desktopSlide, index) => {
+    const mobileImg = rawMobile[index];
+    if (mobileImg?.sourceUrl) {
+      return {
+        src: mobileImg.sourceUrl.trim(),
+        alt: mobileImg.altText?.trim() || FALLBACK.alt,
+      };
+    }
+    return desktopSlide; 
+  });
 
- return <HeroSlider slides={slides} link="/collections/our-collection" />;
+  return (
+    <HeroSlider
+      desktopSlides={desktopSlides}
+      mobileSlides={mobileSlides}
+      link={FALLBACK.link}
+    />
+  );
 }

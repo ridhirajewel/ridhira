@@ -54,6 +54,7 @@ export interface HeroBannerFields {
   heroBanner: { node: { sourceUrl: string; altText: string } | null } | null;
   heroBanner2: { node: { sourceUrl: string; altText: string } | null } | null;
   heroBanner3: { node: { sourceUrl: string; altText: string } | null } | null;
+  herobannermobile1: { node: { sourceUrl: string; altText: string } | null } | null;
   bannerHeading: string | null;
 }
 
@@ -62,35 +63,17 @@ export async function getHeroBanner(): Promise<HeroBannerFields | null> {
     query HeroBanner {
       page(id: "home", idType: URI) {
         herobanner {
-          heroBanner {
-            node {
-              sourceUrl
-              altText
-            }
-          }
-          heroBanner2 {
-            node {
-              sourceUrl
-              altText
-            }
-          }
-          heroBanner3 {
-            node {
-              sourceUrl
-              altText
-            }
-          }
+          heroBanner { node { sourceUrl altText } }
+          heroBanner2 { node { sourceUrl altText } }
+          heroBanner3 { node { sourceUrl altText } }
+          herobannermobile1 { node { sourceUrl altText } }
           bannerHeading
         }
       }
     }
   `;
 
-  const data = await fetchGraphQL(query).catch((e) => {
-    console.error("[getHeroBanner]", e);
-    return null;
-  });
-  console.log("[getHeroBanner] data:", JSON.stringify(data, null, 2));
+  const data = await fetchGraphQL(query).catch(() => null);
   return data?.page?.herobanner ?? null;
 }
 
